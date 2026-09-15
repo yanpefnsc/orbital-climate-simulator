@@ -6,7 +6,7 @@ from src.database import DatabaseManager
 def main():
     db = DatabaseManager()
 
-    target = "São Paulo"
+    target = "Sao Paulo"
     area = 10000.0
     reduction = 5.0
     sim = ClimateSimulator(target_region=target, area_sq_km=area, desired_reduction_pct=reduction)
@@ -19,7 +19,7 @@ def main():
 
     results = sim.run_simulation()
 
-    print(f"\n════════ SIMULAÇÃO V3 (Missão #{mission_id} Gravada no SQL) ════════")
+    print(f"\n════════ SIMULATION V3 (Mission #{mission_id} Logged to SQL) ════════")
     for key, value in results.items():
         print(f"{key.replace('_', ' ').title()}: {value}")
     print("════════════════════════════════════════════════════════════════════\n")
@@ -27,7 +27,7 @@ def main():
     hours = [0, 1, 2, 3, 4, 5, 6]
     radiation_levels = [100.0, 99.1, 98.0, 96.8, 95.9, 95.3, 95.3]
 
-    print("Gerando gráficos...")
+    print("Generating charts...")
     SimulationVisualizer.plot_drone_positions(sim.drones)
     SimulationVisualizer.plot_radiation_reduction(hours, radiation_levels)
 
