@@ -2,6 +2,10 @@
 
 > An interactive mission-control dashboard for exploring the operational trade-offs of a conceptual Solar Radiation Management (SRM) drone fleet.
 
+![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-mission%20data-003B57?logo=sqlite&logoColor=white)
+
 ## Why this project?
 
 Climate interventions are often discussed at a global scale, but their execution is an operations problem: **How large is the coverage area? How many units are active? How does fuel availability affect the mission? What happens as aerosols dissipate?**
@@ -82,13 +86,6 @@ streamlit run app.py
 
 Open the local URL shown by Streamlit, configure the mission in the sidebar and select **Execute Operations**.
 
-## Ideas for the next iteration
-
-- Add reproducible simulation scenarios and automated tests.
-- Compare multiple regional profiles side by side.
-- Add charts for historical missions stored in SQLite.
-- Separate physical assumptions into a configurable model file.
-- Deploy the dashboard so anyone can try it in the browser.
 
 ## Author
 
