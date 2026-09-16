@@ -1,60 +1,81 @@
 import sqlite3
 
 class DatabaseManager:
-    def __init__(self, db_name: str = "orbital_climate.db"):
-        self.db_name = db_name
-        self._create_tables()
+    def __init__(self, db_path="orbital_climate.db"):
+        self.db_path = db_path
+        self._init_db()
 
-    def get_connection(self):
-        return sqlite3.connect(self.db_name)
-
-    def _create_tables(self):
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS missions (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    target_region TEXT NOT NULL,
-                    area_sq_km REAL NOT NULL,
-                    desired_reduction_pct REAL NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """)
-
-            cursor.execute("""
-                CREATE TABLE IF NOT EXISTS telemetry (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    mission_id INTEGER,
-                    drone_id INTEGER NOT NULL,
-                    position_x REAL NOT NULL,
-                    position_y REAL NOT NULL,
-                    fuel REAL NOT NULL,
-                    particles_remaining REAL NOT NULL,
-                    FOREIGN KEY (mission_id) REFERENCES missions (id)
-                )
-            """)
-            conn.commit()
-
-    def save_mission(self, target: str, area: float, reduction: float) -> int:
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                "INSERT INTO missions (target_region, area_sq_km, desired_reduction_pct) VALUES (?, ?, ?)",
-                (target, area, reduction)
+    def _init_db(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS missions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                target_region TEXT,
+                area_sq_km REAL,
+                desired_reduction REAL,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
             )
-            conn.commit()
-            return int(cursor.lastrowid or 0)
+        """)
+        
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS telemetry (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                mission_id INTEGER,
+                drone_id INTEGER,
+                pos_x REAL,
+                pos_y REAL,
+                fuel_pct REAL,
+                dispensed_kg REAL,
+                status TEXT,
+                FOREIGN KEY (mission_id) REFERENCES missions (id)
+            )
+        """)
+        
+        conn.commit()
+        conn.close()
 
-    def save_telemetry(self, mission_id: int, drones: list):
-        with self.get_connection() as conn:
-            cursor = conn.cursor()
-            telemetry_data = [
-                (mission_id, d.drone_id, d.position[0], d.position[1], d.fuel, d.current_particles)
-                for d in drones
-            ]
-            cursor.executemany("""
-                INSERT INTO telemetry (mission_id, drone_id, position_x, position_y, fuel, particles_remaining)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, telemetry_data)
-            conn.commit()
+    def save_mission(self, target_region, area_sq_km, desired_reduction):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO missions (target_region, area_sq_km, desired_reduction)
+            VALUES (?, ?, ?)
+        """, (target_region, area_sq_km, desired_reduction))
+        mission_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        return mission_id
+
+    def save_telemetry(self, mission_id, drones):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        for drone in drones:
+            d_dict = drone.get_dict()
+            cursor.execute("""
+                INSERT INTO telemetry (mission_id, drone_id, pos_x, pos_y, fuel_pct, dispensed_kg, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (
+                mission_id,
+                d_dict["drone_id"],
+                d_dict["x"],
+                d_dict["y"],
+                d_dict["fuel_pct"],
+                d_dict["dispensed_kg"],
+                d_dict["status"]
+            ))
+        conn.commit()
+        conn.close()
+
+    def get_latest_telemetry(self, mission_id):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT drone_id, pos_x, pos_y, fuel_pct, dispensed_kg, status
+            FROM telemetry
+            WHERE mission_id = ?
+        """, (mission_id,))
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
