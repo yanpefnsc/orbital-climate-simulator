@@ -89,6 +89,6 @@ Open the local URL shown by Streamlit, configure the mission in the sidebar and 
 
 ## Author
 
-Built by [Yan Pefnsc](https://github.com/yanpefnsc).
+Built by [yanpefnsc](https://github.com/yanpefnsc).
 
 If you found this project interesting, feel free to star the repository or open an issue with feedback.
