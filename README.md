@@ -5,6 +5,9 @@
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-dashboard-FF4B4B?logo=streamlit&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-mission%20data-003B57?logo=sqlite&logoColor=white)
+## Dashboard preview
+
+![Orbital Climate Simulator dashboard](dashboard-preview.png)
 
 ## Why this project?
 
